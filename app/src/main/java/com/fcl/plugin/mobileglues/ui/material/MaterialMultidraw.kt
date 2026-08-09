@@ -425,6 +425,15 @@ fun MultidrawBenchDialogs(controller: AppController) {
                         ranking.forEachIndexed { index, ranked ->
                             RankedRow(index + 1, ranked.item.label(context).toString(), ranked.relativeCost)
                         }
+                        // 只有一个方案测得出时，「排名」这个词就名不副实——没有可比较的对象，
+                        // ×1.00 也失去含义。说破，免得用户把孤例当选择。
+                        if (ranking.count { it.relativeCost != null } == 1) {
+                            Text(
+                                text = stringResource(R.string.md_bench_single_candidate),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                         // 成色跟着它描述的那份排名走：抖的是某个函数，不是整场跑分。
                         BenchQualityNote(s.quality[entry])
                     }

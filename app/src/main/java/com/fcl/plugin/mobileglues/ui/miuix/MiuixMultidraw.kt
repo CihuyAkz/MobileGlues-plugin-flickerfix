@@ -470,6 +470,14 @@ fun MiuixMultidrawBenchDialogs(controller: AppController) {
                     ranking.forEachIndexed { index, ranked ->
                         MiuixRankedRow(index + 1, ranked.item.label(context).toString(), ranked.relativeCost)
                     }
+                    // 只有一个方案测得出时，「排名」名不副实——没有可比较的对象。
+                    if (ranking.count { it.relativeCost != null } == 1) {
+                        Text(
+                            text = stringResource(R.string.md_bench_single_candidate),
+                            style = MiuixTheme.textStyles.footnote2,
+                            color = MiuixTheme.colorScheme.onSurfaceSecondary,
+                        )
+                    }
                     // 成色跟着它描述的那份排名走：抖的是某个函数，不是整场跑分。
                     MiuixBenchQualityNote(doneState.quality[entry])
                 }
