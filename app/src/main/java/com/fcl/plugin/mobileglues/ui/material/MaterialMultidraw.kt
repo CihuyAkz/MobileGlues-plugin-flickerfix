@@ -27,6 +27,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -103,7 +105,7 @@ fun ColumnScope.MultidrawOrderContent(controller: AppController, config: MGConfi
     AnimatedVisibility(visible = settings.globalCustomized, enter = fadeIn(), exit = fadeOut()) {
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
             Spacer(Modifier.weight(1f))
-            TextButton(onClick = controller::resetMultidrawGlobalOrder) {
+            OutlinedButton(onClick = controller::resetMultidrawGlobalOrder) {
                 Text(stringResource(R.string.md_reset_default))
             }
         }
@@ -120,7 +122,9 @@ fun ColumnScope.MultidrawOrderContent(controller: AppController, config: MGConfi
 
     // 跑分只测得出「这个函数上哪个方案快」，那就把结果按函数交出去，别硬合成一份全局顺序。
     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-        TextButton(onClick = { controller.runMultidrawBench(AppController.BenchTarget.AllEntries) }) {
+        FilledTonalButton(
+            onClick = { controller.runMultidrawBench(AppController.BenchTarget.AllEntries) },
+        ) {
             Text(stringResource(R.string.md_bench_run_all))
         }
     }
@@ -158,7 +162,7 @@ fun ColumnScope.MultidrawOrderContent(controller: AppController, config: MGConfi
                     )
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-                    TextButton(
+                    FilledTonalButton(
                         onClick = {
                             controller.runMultidrawBench(AppController.BenchTarget.Entry(entry))
                         },
@@ -171,7 +175,7 @@ fun ColumnScope.MultidrawOrderContent(controller: AppController, config: MGConfi
                         enter = fadeIn(),
                         exit = fadeOut(),
                     ) {
-                        TextButton(onClick = { controller.resetMultidrawExceptionOrder(entry) }) {
+                        OutlinedButton(onClick = { controller.resetMultidrawExceptionOrder(entry) }) {
                             Text(stringResource(R.string.md_reset_default))
                         }
                     }
