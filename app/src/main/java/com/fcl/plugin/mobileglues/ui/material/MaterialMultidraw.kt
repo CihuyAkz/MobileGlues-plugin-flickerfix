@@ -48,6 +48,7 @@ import com.fcl.plugin.mobileglues.settings.MultidrawOrderItem
 import com.fcl.plugin.mobileglues.settings.MultidrawSettings
 import com.fcl.plugin.mobileglues.settings.RankedItem
 import com.fcl.plugin.mobileglues.ui.AppController
+import com.fcl.plugin.mobileglues.ui.Responsive
 import com.fcl.plugin.mobileglues.ui.DragReorderColumn
 import androidx.compose.ui.unit.dp
 import java.util.Locale
@@ -281,7 +282,11 @@ private fun AngleSourceDialog(controller: AppController) {
         onDismissRequest = controller::dismissAngleSourcePrompt,
         title = { Text(stringResource(R.string.md_angle_title)) },
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .heightIn(max = Responsive.dialogMaxContentHeight())
+                    .verticalScroll(rememberScrollState()),
+            ) {
                 Text(stringResource(R.string.md_angle_intro))
                 Spacer(Modifier.heightIn(min = 12.dp))
                 if (pending.sources.isEmpty()) {
@@ -389,7 +394,11 @@ fun MultidrawBenchDialogs(controller: AppController) {
             onDismissRequest = controller::dismissBench,
             title = { Text(stringResource(R.string.md_bench_result_title)) },
             text = {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = Responsive.dialogMaxContentHeight())
+                        .verticalScroll(rememberScrollState()),
+                ) {
                     Text(
                         text = when (val target = s.target) {
                             is AppController.BenchTarget.AllEntries ->
