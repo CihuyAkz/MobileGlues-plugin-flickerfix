@@ -18,9 +18,8 @@ jobs:
           submodules: false
           fetch-depth: 0
 
-      - name: Setup MobileGlues core + dependencies
+      - name: Setup MobileGlues core + all dependencies
         run: |
-          # Hapus folder lama
           rm -rf MobileGlues
           rm -rf .git/modules/MobileGlues || true
 
@@ -29,27 +28,38 @@ jobs:
             https://github.com/CihuyAkz/MobileGlues-MipmapFlickeringFix.git \
             MobileGlues
 
-          # Masuk ke folder core
           cd MobileGlues
-
-          # Buat folder 3rdparty
           mkdir -p MobileGlues-cpp/3rdparty
           cd MobileGlues-cpp/3rdparty
 
-          # Download glslang
-          echo "Cloning glslang..."
+          # 1. glslang
+          echo ">>> Cloning glslang..."
           git clone --depth 1 https://github.com/KhronosGroup/glslang.git
 
-          # Download SPIRV-Cross
-          echo "Cloning SPIRV-Cross..."
+          # 2. SPIRV-Cross
+          echo ">>> Cloning SPIRV-Cross..."
           git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Cross.git
 
-          # Download xxHash (juga dibutuhkan)
-          echo "Cloning xxHash..."
+          # 3. xxHash
+          echo ">>> Cloning xxHash..."
           git clone --depth 1 https://github.com/Cyan4973/xxHash.git xxhash
+
+          # 4. flat_hash_map (ini yang error tadi)
+          echo ">>> Cloning flat_hash_map..."
+          git clone --depth 1 https://github.com/MobileGL-Dev/flat_hash_map.git
+
+          # Pindahkan header ke tempat yang dicari compiler
+          mkdir -p ../includes/ska
+          cp -r flat_hash_map/* ../includes/ska/ 2>/dev/null || true
+          # Alternatif path yang sering dipakai
+          mkdir -p ska
+          cp flat_hash_map/flat_hash_map.hpp ska/ 2>/dev/null || true
+          cp -r flat_hash_map/* . 2>/dev/null || true
 
           echo "=== Isi 3rdparty ==="
           ls -la
+          echo "=== Cek flat_hash_map ==="
+          find . -name "flat_hash_map.hpp" || echo "header belum ketemu"
 
           cd ../../..
 
