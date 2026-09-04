@@ -18,12 +18,40 @@ jobs:
           submodules: false
           fetch-depth: 0
 
-      - name: Setup submodule (pakai core kamu)
+      - name: Setup MobileGlues core + dependencies
         run: |
+          # Hapus folder lama
           rm -rf MobileGlues
           rm -rf .git/modules/MobileGlues || true
-          git clone --depth 1 --branch main https://github.com/CihuyAkz/MobileGlues-MipmapFlickeringFix.git MobileGlues
-          ls -la MobileGlues
+
+          # Clone core kamu
+          git clone --depth 1 --branch main \
+            https://github.com/CihuyAkz/MobileGlues-MipmapFlickeringFix.git \
+            MobileGlues
+
+          # Masuk ke folder core
+          cd MobileGlues
+
+          # Buat folder 3rdparty
+          mkdir -p MobileGlues-cpp/3rdparty
+          cd MobileGlues-cpp/3rdparty
+
+          # Download glslang
+          echo "Cloning glslang..."
+          git clone --depth 1 https://github.com/KhronosGroup/glslang.git
+
+          # Download SPIRV-Cross
+          echo "Cloning SPIRV-Cross..."
+          git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Cross.git
+
+          # Download xxHash (juga dibutuhkan)
+          echo "Cloning xxHash..."
+          git clone --depth 1 https://github.com/Cyan4973/xxHash.git xxhash
+
+          echo "=== Isi 3rdparty ==="
+          ls -la
+
+          cd ../../..
 
       - name: Set date & repo name
         run: |
