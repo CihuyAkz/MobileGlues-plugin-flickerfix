@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:   # bisa dijalankan manual
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,22 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
           fetch-depth: 0
 
-      # Fix branch submodule (core kamu pakai branch main, bukan plugin)
-      - name: Fix submodule branch
+      - name: Setup submodule (pakai core kamu)
         run: |
-          git config -f .gitmodules submodule.MobileGlues.branch main
-          git submodule sync
-          git submodule update --init --recursive --force
-
-          # Pastikan core mengarah ke repo kamu
-          cd MobileGlues
-          git remote set-url origin https://github.com/CihuyAkz/MobileGlues-MipmapFlickeringFix.git
-          git fetch origin
-          git checkout main || git checkout -b main origin/main
-          cd ..
+          rm -rf MobileGlues
+          rm -rf .git/modules/MobileGlues || true
+          git clone --depth 1 --branch main https://github.com/CihuyAkz/MobileGlues-MipmapFlickeringFix.git MobileGlues
+          ls -la MobileGlues
 
       - name: Set date & repo name
         run: |
@@ -58,16 +51,13 @@ jobs:
       - name: Build APK (Release)
         run: ./gradlew assembleRelease --stacktrace
         env:
-          # Kalau punya secrets signing, biarkan. Kalau tidak, build tetap jalan (unsigned)
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-        continue-on-error: false
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: \( {{ env.repository_name }}_ \){{ env.date_today }}_${{ github.sha }}
-          path: |
-            app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
