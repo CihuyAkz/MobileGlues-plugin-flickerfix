@@ -23,6 +23,7 @@ jobs:
           rm -rf MobileGlues
           rm -rf .git/modules/MobileGlues || true
 
+          # Clone core kamu
           git clone --depth 1 --branch main \
             https://github.com/CihuyAkz/MobileGlues-MipmapFlickeringFix.git \
             MobileGlues
@@ -31,22 +32,41 @@ jobs:
           mkdir -p MobileGlues-cpp/3rdparty
           cd MobileGlues-cpp/3rdparty
 
+          # 1. glslang
+          echo ">>> Cloning glslang..."
           git clone --depth 1 https://github.com/KhronosGroup/glslang.git
+
+          # 2. SPIRV-Cross
+          echo ">>> Cloning SPIRV-Cross..."
           git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Cross.git
+
+          # 3. xxHash
+          echo ">>> Cloning xxHash..."
           git clone --depth 1 https://github.com/Cyan4973/xxHash.git xxhash
+
+          # 4. flat_hash_map (ini yang error tadi)
+          echo ">>> Cloning flat_hash_map..."
           git clone --depth 1 https://github.com/MobileGL-Dev/flat_hash_map.git
 
+          # Pindahkan header ke tempat yang dicari compiler
           mkdir -p ../includes/ska
           cp -r flat_hash_map/* ../includes/ska/ 2>/dev/null || true
+          # Alternatif path yang sering dipakai
           mkdir -p ska
           cp flat_hash_map/flat_hash_map.hpp ska/ 2>/dev/null || true
+          cp -r flat_hash_map/* . 2>/dev/null || true
+
+          echo "=== Isi 3rdparty ==="
+          ls -la
+          echo "=== Cek flat_hash_map ==="
+          find . -name "flat_hash_map.hpp" || echo "header belum ketemu"
 
           cd ../../..
 
       - name: Set date & repo name
         run: |
           echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-          echo "repository_name=\( (echo ' \){{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+          echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -66,17 +86,16 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # Build tanpa signing (unsigned APK)
-      - name: Build APK (Unsigned)
-        run: |
-          # Matikan signing supaya tidak error password
-          ./gradlew assembleRelease -x packageRelease || true
-          ./gradlew assembleDebug --stacktrace
+      - name: Build APK (Release)
+        run: ./gradlew assembleRelease --stacktrace
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: \( {{ env.repository_name }}_ \){{ env.date_today }}_${{ github.sha }}
-          path: |
-            app/build/outputs/apk/**/*.apk
+          name: ${{ env.repository_name }}_${{ env.date_today }}_${{ github.sha }}
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
